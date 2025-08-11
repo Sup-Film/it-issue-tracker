@@ -1,0 +1,14 @@
+{
+  "name": "it-issue-tracker",
+  "version": "1.0.0",
+  "description": "IT Issue Tracker - Realtime & Webhook Ready",
+  "private": true,
+  "scripts": {
+    "dev:be": "pnpm --filter backend dev",
+    "dev:fe": "pnpm --filter frontend dev",
+    "dev:hook": "pnpm --filter webhook-listener dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

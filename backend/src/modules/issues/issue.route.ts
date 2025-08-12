@@ -1,14 +1,18 @@
 import { Router } from "express";
 import {
   createIssue,
-  getIssues,
   updateIssueStatus,
   assignIssue,
+  getAdminIssues,
+  getSupportIssues,
+  getUserIssues,
 } from "./issue.controller";
 import { authenticateToken } from "../../middleware/auth.middleware";
 import {
   requireAdmin,
+  requireSupport,
   requireSupportOrAdmin,
+  requireUser,
 } from "../../middleware/role.middleware";
 
 const router = Router();
@@ -17,7 +21,11 @@ const router = Router();
 router.use(authenticateToken);
 
 router.post("/", createIssue); // ทุกคนที่ผ่านการตรวจสอบสิทธิ์สามารถสร้างปัญหาได้
-router.get("/", getIssues); // ทุกคนที่ผ่านการตรวจสอบสิทธิ์สามารถดูปัญหาได้ตาม Role ที่กำหนด
+
+// แยก endpoint ตาม role
+router.get("/admin", requireAdmin, getAdminIssues);
+router.get("/support", requireSupport, getSupportIssues);
+router.get("/user", requireUser, getUserIssues);
 
 // Only Admin and Support can change status or assign
 router.put("/:id/status", requireSupportOrAdmin, updateIssueStatus);

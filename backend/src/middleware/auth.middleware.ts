@@ -24,8 +24,8 @@ export const authenticateToken = async (
   next: NextFunction
 ) => {
   try {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1]; // Format: "Bearer TOKEN"
+    // ✅ เปลี่ยนจาก Authorization header เป็น Cookie
+    const token = req.cookies?.accessToken;
 
     if (!token) {
       return res.status(401).json({

@@ -4,7 +4,6 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { registerSchema, loginSchema } from "./auth.validation";
 import { ZodError } from "zod";
-import { error } from "console";
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -41,14 +40,35 @@ export const register = async (req: Request, res: Response) => {
       { expiresIn: "24h" }
     );
 
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
     return res.status(201).json({
       message: "User registered successfully",
-      user,
-      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error) {
     if (error instanceof ZodError) {
-      return res.status(400).json({ message: "Invalid input", errors: error });
+      console.log(error.issues);
+
+      const formattedErrors = error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+        code: issue.code,
+      }));
+
+      return res
+        .status(400)
+        .json({ message: "Invalid input", errors: formattedErrors });
     }
     return res.status(500).json({ message: "Internal server error" });
   }
@@ -76,10 +96,41 @@ export const login = async (req: Request, res: Response) => {
       { expiresIn: "1d" } // Token will expire in 1 day
     );
 
-    return res.status(200).json({ accessToken: token });
-  } catch (error) {}
-  if (error instanceof ZodError) {
-    return res.status(400).json({ message: "Invalid input", errors: error });
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      message: "Login successful",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      console.log(error.issues);
+
+      const formattedErrors = error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+        code: issue.code,
+      }));
+
+      return res
+        .status(400)
+        .json({ message: "Invalid input", errors: formattedErrors });
+    }
+    return res.status(500).json({ message: "Internal server error" });
   }
-  return res.status(500).json({ message: "Internal server error" });
+};
+
+export const logout = (req: Request, res: Response) => {
+  res.clearCookie("accessToken");
+  return res.status(200).json({ message: "Logged out successfully" });
 };

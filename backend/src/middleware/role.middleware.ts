@@ -25,5 +25,5 @@ export const requireRole = (allowedRoles: string[]) => {
 
 // Convenient role checking functions
 export const requireAdmin = requireRole(["ADMIN"]);
-export const requireManagerOrAdmin = requireRole(["SUPPORT", "ADMIN"]);
+export const requireSupportOrAdmin = requireRole(["SUPPORT", "ADMIN"]);
 export const requireUser = requireRole(["USER", "SUPPORT", "ADMIN"]);

@@ -2,7 +2,9 @@ import express, { Request, Response } from "express";
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
+import cookieParser from "cookie-parser"; // ✅ เพิ่ม cookie-parser
 import authRoutes from "./modules/auth/auth.route";
+import issueRoutes from "./modules/issues/issue.route";
 import { authenticateToken } from "./middleware/auth.middleware";
 
 const app = express();
@@ -13,8 +15,10 @@ app.use(helmet());
 app.use(
   cors({
     origin: "http://localhost:3000",
+    credentials: true,
   })
 );
+app.use(cookieParser());
 app.use(express.json());
 
 const authLimiter = rateLimit({
@@ -34,6 +38,7 @@ app.get("/api", (req: Request, res: Response) => {
 });
 
 app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/issues", issueRoutes);
 
 // Sample route
 app.get("/api/me", authenticateToken, (req: Request, res: Response) => {

@@ -1,4 +1,13 @@
 packages:
-  - 'frontend'
-  - 'backend'
-  - 'webhook-listener'
+  - frontend
+  - backend
+  - webhook-listener
+
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@tailwindcss/oxide'
+  - bcrypt
+  - prisma
+  - sharp
+  - unrs-resolver

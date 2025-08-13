@@ -5,6 +5,7 @@ import {
   GetIssueInput,
   UpdateStatusInput,
 } from "./issue.validation";
+import { io } from "../../lib/socket";
 
 export class IssueService {
   // Create a new issue
@@ -70,13 +71,29 @@ export class IssueService {
     status: IssueStatus,
     updatedById: string
   ) {
-    return await prisma.issue.update({
+    const updatedIssue = await prisma.issue.update({
       where: { id },
       data: {
         status, // status เป็น string (enum) เช่น "IN_PROGRESS"
         updatedBy: { connect: { id: updatedById } },
       },
     });
+
+    const authorId = updatedIssue.authorId;
+
+    if (io && authorId) {
+      try {
+        io.to(authorId).emit("issue:status_changed", updatedIssue);
+        console.log(
+          `Issue status changed for issue ID ${id}, notifying author ${authorId}`
+        );
+      } catch (err) {
+        // log error เฉพาะส่วน socket
+        console.error("Socket emit error:", err);
+      }
+    }
+
+    return updatedIssue;
   }
 
   static async assignIssue(

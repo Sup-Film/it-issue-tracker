@@ -2,10 +2,12 @@ import express, { Request, Response } from "express";
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import cookieParser from "cookie-parser"; // ✅ เพิ่ม cookie-parser
+import cookieParser from "cookie-parser";
 import authRoutes from "./modules/auth/auth.route";
 import issueRoutes from "./modules/issues/issue.route";
 import { authenticateToken } from "./middleware/auth.middleware";
+import { createServer } from "http";
+import { initializeSocketIO } from "./lib/socket";
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -45,8 +47,11 @@ app.get("/api/me", authenticateToken, (req: Request, res: Response) => {
   res.status(200).json(req.user);
 });
 
-app.listen(port, () => {
-  console.log(`Backend server is listening on port ${port}`);
+const httpServer = createServer(app);
+initializeSocketIO(httpServer);
+
+httpServer.listen(port, () => {
+  console.log(`Backend server with Socket.IO is listening on port ${port}`);
 });
 
 export default app;

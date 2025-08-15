@@ -24,8 +24,8 @@ app.use(cookieParser());
 app.use(express.json());
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 10 requests per windowMs
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 20, // Limit each IP to 20 requests per windowMs
   message: {
     message: "Too many requests. Please try again later.",
     code: "TOO_MANY_REQUESTS",

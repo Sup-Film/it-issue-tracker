@@ -47,6 +47,8 @@ app.get("/api/me", authenticateToken, (req: Request, res: Response) => {
   res.status(200).json(req.user);
 });
 
+// สร้าง Http server เพื่อรองรับ WebSocket
+// รองรับ real-time communication เช่น emit, รับ event จาก client
 const httpServer = createServer(app);
 initializeSocketIO(httpServer);
 

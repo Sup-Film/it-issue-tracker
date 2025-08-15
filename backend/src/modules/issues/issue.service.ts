@@ -6,6 +6,7 @@ import {
   UpdateStatusInput,
 } from "./issue.validation";
 import { io } from "../../lib/socket";
+import { WebhookService } from "../webhook/webhook.service";
 
 export class IssueService {
   // Create a new issue
@@ -77,6 +78,7 @@ export class IssueService {
         status, // status เป็น string (enum) เช่น "IN_PROGRESS"
         updatedBy: { connect: { id: updatedById } },
       },
+      include: { updatedBy: true },
     });
 
     const authorId = updatedIssue.authorId;
@@ -91,6 +93,11 @@ export class IssueService {
       } catch (err) {
         console.error("Socket emit error:", err);
       }
+    }
+
+    // ส่ง webhook เมื่อสถานะ issue เปลี่ยนแปลง
+    if (updatedIssue) {
+      WebhookService.sendIssueUpdate(updatedIssue);
     }
 
     return updatedIssue;

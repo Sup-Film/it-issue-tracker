@@ -4,31 +4,16 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { registerSchema, loginSchema } from "./auth.validation";
 import { ZodError } from "zod";
+import { AuthService } from "./auth.service";
+import { formatZodErrors } from "../../utils/zodErrorFormatter";
 
 export const register = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = registerSchema.parse(req.body);
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-    if (existingUser) {
-      return res
-        .status(409)
-        .json({ message: "User with this email already exists" });
-    }
+    const user = await AuthService.register({ name, email, password });
 
-    const hashedPassword = await bcrypt.hash(password, 12); // เพิ่ม security
-    const user = await prisma.user.create({
-      data: { name, email, password: hashedPassword },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-      },
-    });
+    console.log(user);
 
     const token = jwt.sign(
       {
@@ -60,15 +45,15 @@ export const register = async (req: Request, res: Response) => {
     if (error instanceof ZodError) {
       console.log(error.issues);
 
-      const formattedErrors = error.issues.map((issue) => ({
-        field: issue.path.join("."),
-        message: issue.message,
-        code: issue.code,
-      }));
-
       return res
         .status(400)
-        .json({ message: "Invalid input", errors: formattedErrors });
+        .json({ message: "Invalid input", errors: formatZodErrors(error) });
+    }
+
+    if (error instanceof Error && error.message === "USER_EXISTS") {
+      return res
+        .status(409)
+        .json({ message: "User already exists with this email" });
     }
     return res.status(500).json({ message: "Internal server error" });
   }
@@ -78,17 +63,7 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
 
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
+    const user = await AuthService.login({ email, password });
 
     const token = jwt.sign(
       { userId: user.id, role: user.role, email: user.email },
@@ -116,16 +91,20 @@ export const login = async (req: Request, res: Response) => {
     if (error instanceof ZodError) {
       console.log(error.issues);
 
-      const formattedErrors = error.issues.map((issue) => ({
-        field: issue.path.join("."),
-        message: issue.message,
-        code: issue.code,
-      }));
-
       return res
         .status(400)
-        .json({ message: "Invalid input", errors: formattedErrors });
+        .json({ message: "Invalid input", errors: formatZodErrors(error) });
     }
+
+    if (error instanceof Error) {
+      if (error.message === "USER_NOT_FOUND") {
+        return res.status(404).json({ message: "User not found" });
+      }
+      if (error.message === "INVALID_CREDENTIALS") {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+    }
+    
     return res.status(500).json({ message: "Internal server error" });
   }
 };

@@ -81,6 +81,7 @@ export class IssueService {
 
     const authorId = updatedIssue.authorId;
 
+    // แจ้งเตือนไปยังผู้ที่สร้าง issue เมื่อสถานะมีการเปลี่ยนแปลง
     if (io && authorId) {
       try {
         io.to(authorId).emit("issue:status_changed", updatedIssue);
@@ -88,7 +89,6 @@ export class IssueService {
           `Issue status changed for issue ID ${id}, notifying author ${authorId}`
         );
       } catch (err) {
-        // log error เฉพาะส่วน socket
         console.error("Socket emit error:", err);
       }
     }

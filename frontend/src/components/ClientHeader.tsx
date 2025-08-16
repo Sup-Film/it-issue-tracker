@@ -13,6 +13,9 @@ export default function ClientHeader() {
         <>
           <span className="mr-2 text-sm">{user.email}</span>
           <LogoutButton />
+          <Link href="/dashboard" className="ml-2 px-3 py-1 border rounded text-sm">
+            Dashboard
+          </Link>
         </>
       ) : (
         <div className="flex items-center gap-4">

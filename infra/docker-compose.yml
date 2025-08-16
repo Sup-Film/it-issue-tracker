@@ -13,6 +13,7 @@ services:
       - backend
     environment:
       - NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api
+      - INTERNAL_API_BASE_URL=http://backend:8080/api
     restart: unless-stopped
 
   # Backend Service (Express.js)

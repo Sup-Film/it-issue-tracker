@@ -1,12 +1,14 @@
 # ---- build ----
-FROM node:20-alpine AS build
+FROM node:20-slim AS build
 WORKDIR /app
 RUN corepack enable
 
 # ติดตั้ง deps ให้ build ได้
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY backend/package.json backend/package.json
-RUN pnpm fetch && pnpm -r install -r --offline
+# Use networked install so build works in ephemeral environments (PWD/CI)
+# --frozen-lockfile ensures lockfile consistency
+RUN pnpm install --frozen-lockfile
 
 # คอมไพล์ backend
 COPY . .
@@ -20,15 +22,16 @@ RUN pnpm build
 # then pruning devDependencies.
 
 # ---- runtime ----
-FROM node:20-alpine AS runtime
+FROM node:20-slim AS runtime
 WORKDIR /app/backend
 
 # Provide pnpm in runtime to support compose commands using pnpm
 RUN npm install -g pnpm
 
+# Copy workspace node_modules (pnpm places hoisted deps at workspace root)
 COPY --from=build /app/node_modules /app/node_modules
+# Copy backend package and built output
 COPY --from=build /app/backend/package.json ./package.json
-COPY --from=build /app/backend/node_modules ./node_modules
 COPY --from=build /app/backend/dist ./dist
 COPY --from=build /app/backend/prisma ./prisma
 COPY --from=build /app/backend/scripts ./scripts

@@ -1,23 +1,73 @@
-version: '3.8'
-
 services:
+  # Frontend Service (Next.js)
+  frontend:
+    build:
+      context: ../
+      dockerfile: frontend/Dockerfile
+    container_name: it_issue_tracker_frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api
+    restart: unless-stopped
+
+  # Backend Service (Express.js)
+  backend:
+    build:
+      context: ..
+      dockerfile: ./backend/Dockerfile
+    container_name: it_issue_tracker_backend
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ../backend/.env
+    # Use entrypoint script to migrate, seed, then start
+    command: ["./scripts/entrypoint.sh"]
+    restart: unless-stopped
+
+  
+
+  # Webhook Listener Service
+  webhook-listener:
+    build:
+      context: ../
+      dockerfile: webhook-listener/Dockerfile
+    container_name: it_issue_tracker_webhook_listener
+    ports:
+      - "4000:4000"
+    networks:
+      - app-network
+    env_file:
+      - ../webhook-listener/.env
+    restart: unless-stopped
+
+  # Database Service (PostgreSQL)
   db:
     image: postgres:17-alpine
     container_name: it_issue_tracker_db
-    restart: always
     ports:
       - "5433:5432"
     env_file:
-      - /.env
+      - ../.env # Root .env file for DB credentials
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: always
 
 networks:
   app-network:

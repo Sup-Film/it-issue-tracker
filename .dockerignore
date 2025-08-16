@@ -1,0 +1,35 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Dependency directories
+# We want Docker to install dependencies from scratch inside the container
+# based on package.json and pnpm-lock.yaml, not copy our local ones.
+node_modules
+**/node_modules
+
+# PNPM store
+.pnpm-store
+
+# Local environment files
+# We pass environment variables through docker-compose, not by copying .env files
+.env
+.env.*
+!.env.example
+
+# Next.js build output (should be built inside the container)
+frontend/.next
+
+# Build output from local development
+dist
+**/dist
+
+# Logs and temporary files
+logs
+*.log
+.DS_Store
+
+# IDE config
+.vscode
+.idea

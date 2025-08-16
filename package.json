@@ -1,6 +1,7 @@
 {
   "name": "it-issue-tracker",
   "version": "1.0.0",
+  "packageManager": "pnpm@10.14.0",
   "description": "IT Issue Tracker - Realtime & Webhook Ready",
   "private": true,
   "scripts": {

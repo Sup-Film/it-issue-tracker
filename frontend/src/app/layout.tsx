@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/components/providers/QueryProvider";
 import ClientAuthLoader from "@/components/ClientAuthLoader";
 import ClientHeader from "@/components/ClientHeader";
 
-const inter = Inter({ subsets: ["latin"] });
+// Use system font stack instead of remote Google Font to avoid network fetch during build
+const systemFontClass = "font-sans";
 
 export const metadata: Metadata = {
   title: "IT Issue Tracker",
@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+  <body className={systemFontClass}>
         <QueryProvider>
           <ClientAuthLoader>
             <div className="container mx-auto p-4">

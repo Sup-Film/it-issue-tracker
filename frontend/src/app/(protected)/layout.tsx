@@ -1,18 +1,23 @@
-import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
-import { getVerifiedUser } from '@/lib/serverAuth'
+import ClientHeader from "@/components/ClientHeader";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: 'Protected',
-}
+// This is a server component layout
+export default async function ProtectedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const cookieJar = await cookies();
+  const hasToken = cookieJar.has("accessToken");
 
-export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
-  // runs on server for each request
-  const user = getVerifiedUser();
-  if (!user) {
-    // not authenticated -> redirect to login (server-side, zero-flicker)
-    redirect('/login');
+  if (!hasToken) {
+    redirect("/login");
   }
 
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <main className="p-4 sm:p-8">{children}</main>
+    </div>
+  );
 }

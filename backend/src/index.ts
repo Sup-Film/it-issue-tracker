@@ -5,6 +5,7 @@ import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import authRoutes from "./modules/auth/auth.route";
 import issueRoutes from "./modules/issues/issue.route";
+import usersRoutes from "./modules/users/user.route";
 import { authenticateToken } from "./middleware/auth.middleware";
 import { createServer } from "http";
 import { initializeSocketIO } from "./lib/socket";
@@ -14,9 +15,15 @@ const port = process.env.PORT || 8080;
 
 // Middleware
 app.use(helmet());
+const allowedOrigins = ["http://localhost:3000", "https://localhost:3000"];
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: (origin, callback) => {
+      // allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
@@ -41,6 +48,8 @@ app.get("/api", (req: Request, res: Response) => {
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/issues", issueRoutes);
+app.use("/api/users", usersRoutes);
+
 
 // Sample route
 app.get("/api/me", authenticateToken, (req: Request, res: Response) => {

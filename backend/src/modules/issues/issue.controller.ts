@@ -144,6 +144,12 @@ export const updateIssueStatus = async (req: Request, res: Response) => {
 
 export const assignIssue = async (req: Request, res: Response) => {
   try {
+    // Debug log: help diagnose assign failures (remove in production)
+    console.log("AssignIssue called", {
+      params: req.params,
+      body: req.body,
+      user: req.user,
+    });
     const { id } = idParamSchema.parse(req.params);
     const { assigneeId } = assignIssueSchema.parse(req.body);
     const updatedById = req.user?.userId;

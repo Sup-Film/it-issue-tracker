@@ -1,0 +1,129 @@
+{
+  "info": {
+    "name": "it-issue-tracker",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for it-issue-tracker (backend + webhook listener)"
+  },
+  "item": [
+    {
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\":\"Test User\",\"email\":\"newuser@example.com\",\"password\":\"Password123!\"}"
+        },
+        "url": { "raw": "http://localhost:8080/api/auth/register", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","auth","register"] }
+      }
+    },
+    {
+      "name": "Auth - Login (Admin)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\"email\":\"admin@example.com\",\"password\":\"Password123!\"}" },
+        "url": { "raw": "http://localhost:8080/api/auth/login", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","auth","login"] }
+      }
+    },
+    {
+      "name": "Auth - Login (Support)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\"email\":\"support01@example.com\",\"password\":\"Password123!\"}" },
+        "url": { "raw": "http://localhost:8080/api/auth/login", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","auth","login"] }
+      }
+    },
+    {
+      "name": "Auth - Login (User)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\"email\":\"user@example.com\",\"password\":\"Password123!\"}" },
+        "url": { "raw": "http://localhost:8080/api/auth/login", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","auth","login"] }
+      }
+    },
+    {
+      "name": "Auth - Note: Admin/Support users",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "about:blank" },
+        "description": "Admin and Support users are created by the backend seed (see backend/scripts/entrypoint.sh). Use the seeded accounts for tests: admin@example.com / Password123!, support01@example.com / Password123!. The public register endpoint only creates users with default role USER."
+      }
+    },
+    {
+      "name": "Auth - Logout",
+      "request": { "method": "POST", "url": { "raw": "http://localhost:8080/api/auth/logout", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","auth","logout"] } }
+    },
+    {
+      "name": "Get current user (/api/me)",
+      "request": { "method": "GET", "url": { "raw": "http://localhost:8080/api/me", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","me"] } }
+    },
+    {
+      "name": "Issues - Create issue",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"title\":\"Example issue\",\"description\":\"Steps to reproduce...\",\"priority\":\"LOW\"}" },
+        "url": { "raw": "http://localhost:8080/api/issues", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","issues"] }
+      }
+    },
+    {
+      "name": "Issues - Get admin issues (/api/issues/admin)",
+      "request": { "method": "GET", "url": { "raw": "http://localhost:8080/api/issues/admin", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","issues","admin"] } }
+    },
+    {
+      "name": "Issues - Get support issues (/api/issues/support)",
+      "request": { "method": "GET", "url": { "raw": "http://localhost:8080/api/issues/support", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","issues","support"] } }
+    },
+    {
+      "name": "Issues - Get user issues (/api/issues/user)",
+      "request": { "method": "GET", "url": { "raw": "http://localhost:8080/api/issues/user", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","issues","user"] } }
+    },
+    {
+      "name": "Issues - Update status",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"status\":\"IN_PROGRESS\"}" },
+        "url": { "raw": "http://localhost:8080/api/issues/:id/status", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","issues",":id","status"] }
+      }
+    },
+    {
+      "name": "Issues - Assign issue",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"assigneeId\":\"<support-user-id>\"}" },
+        "url": { "raw": "http://localhost:8080/api/issues/:id/assign", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","issues",":id","assign"] }
+      }
+    },
+    {
+      "name": "Users - Get support users",
+      "request": { "method": "GET", "url": { "raw": "http://localhost:8080/api/users/support", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","users","support"] } }
+    },
+    {
+      "name": "Webhook - Test POST",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Signature", "value": "t=<timestamp>,hmac=<hex>" }],
+        "body": { "mode": "raw", "raw": "{\"issueId\":\"abc\",\"status\":\"RESOLVED\"}" },
+        "url": { "raw": "http://localhost:4000/webhook", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["webhook"] }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080" },
+    { "key": "webhook_url", "value": "http://localhost:4000" }
+  ]
+}

@@ -34,6 +34,7 @@ export const createIssue = async (req: Request, res: Response) => {
       });
     }
 
+    console.error(error);
     return res.status(500).json({
       message: "Internal server error",
     });
@@ -60,6 +61,7 @@ export const getAdminIssues = async (req: Request, res: Response) => {
     }
 
     console.error("Error fetching issues:", error);
+    console.error(error);
     return res.status(500).json({
       message: "Internal server error",
     });
@@ -84,6 +86,7 @@ export const getSupportIssues = async (req: Request, res: Response) => {
     }
 
     console.error("Error fetching issues:", error);
+    console.error(error);
     return res.status(500).json({
       message: "Internal server error",
     });
@@ -108,6 +111,7 @@ export const getUserIssues = async (req: Request, res: Response) => {
     }
 
     console.error("Error fetching issues:", error);
+    console.error(error);
     return res.status(500).json({
       message: "Internal server error",
     });
@@ -138,7 +142,8 @@ export const updateIssueStatus = async (req: Request, res: Response) => {
         errors: formatZodErrors(error),
       });
     }
-    return res.status(500).json({ message: "Internal server error" });
+  console.error(error);
+  return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -175,6 +180,7 @@ export const assignIssue = async (req: Request, res: Response) => {
       });
     }
 
+    console.error(error);
     res.status(500).json({
       message: "Internal server error",
     });

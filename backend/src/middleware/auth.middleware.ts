@@ -57,6 +57,7 @@ export const authenticateToken = async (
 
     // Handle unexpected errors
     console.error("Authentication error:", error);
+    console.error(error);
     return res.status(500).json({
       message: "Authentication service error",
       code: "AUTH_ERROR",

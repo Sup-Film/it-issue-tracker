@@ -55,7 +55,8 @@ export const register = async (req: Request, res: Response) => {
         .status(409)
         .json({ message: "User already exists with this email" });
     }
-    return res.status(500).json({ message: "Internal server error" });
+  console.error(error);
+  return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -105,7 +106,8 @@ export const login = async (req: Request, res: Response) => {
       }
     }
     
-    return res.status(500).json({ message: "Internal server error" });
+  console.error(error);
+  return res.status(500).json({ message: "Internal server error" });
   }
 };
 

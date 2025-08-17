@@ -6,6 +6,7 @@ export const getSupportUsers = async (req: Request, res: Response) => {
     const users = await userService.getSupportUsers();
     res.json(users);
   } catch (error) {
-    res.status(500).json({ error: "Failed to retrieve support users." });
+  console.error(error);
+  res.status(500).json({ error: "Failed to retrieve support users." });
   }
 };

@@ -1,7 +1,12 @@
 "use client";
 import React, { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetIssues, Issue, useAssignIssue, useUpdateIssueStatus } from "@/hooks/useIssues";
+import {
+  useGetIssues,
+  Issue,
+  useAssignIssue,
+  useUpdateIssueStatus,
+} from "@/hooks/useIssues";
 import { useSupportUsers, SupportUser } from "@/hooks/useSupportUsers";
 import { socket } from "@/lib/socket";
 import { useAuthStore } from "@/stores/auth.store";
@@ -21,11 +26,7 @@ export default function IssueList({
 }) {
   const user = useAuthStore((state) => state.user);
   const role = user?.role ?? initialRole;
-  const {
-    data: issues,
-    isLoading,
-    error,
-  } = useGetIssues(role, initialIssues);
+  const { data: issues, isLoading, error } = useGetIssues(role, initialIssues);
   const queryClient = useQueryClient();
   useEffect(() => {
     if (!user) return;
@@ -50,11 +51,21 @@ export default function IssueList({
   // Apply client-side filters on the combined data (react-query data takes precedence)
   const source = issues ?? initialIssues ?? [];
   const filtered = source.filter((issue) => {
-    if (priorityFilter && priorityFilter !== 'ALL' && issue.priority !== priorityFilter) return false;
-    if (statusFilter && statusFilter !== 'ALL' && issue.status !== statusFilter) return false;
+    if (
+      priorityFilter &&
+      priorityFilter !== "ALL" &&
+      issue.priority !== priorityFilter
+    )
+      return false;
+    if (statusFilter && statusFilter !== "ALL" && issue.status !== statusFilter)
+      return false;
     if (search) {
       const q = search.toLowerCase();
-      if (!issue.title.toLowerCase().includes(q) && !issue.description.toLowerCase().includes(q)) return false;
+      if (
+        !issue.title.toLowerCase().includes(q) &&
+        !issue.description.toLowerCase().includes(q)
+      )
+        return false;
     }
     return true;
   });
@@ -62,7 +73,7 @@ export default function IssueList({
   if (filtered.length === 0) return <p>No issues found.</p>;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-2xl mx-auto w-full px-2 sm:px-0">
       {filtered.map((issue) => (
         <IssueCard key={issue.id} issue={issue} />
       ))}
@@ -87,24 +98,42 @@ function IssueCard({ issue }: { issue: Issue }) {
   // local state for assign input
   const [assigneeId, setAssigneeId] = React.useState("");
   const [isAssigning, setIsAssigning] = React.useState(false);
-  const { data: supportUsers, isLoading: supportLoading, error: supportError } = useSupportUsers();
+  const {
+    data: supportUsers,
+    isLoading: supportLoading,
+    error: supportError,
+  } = useSupportUsers();
+
+  // ถ้ามี assigneeId แล้ว (issue.assigneeId) ไม่ต้องโชว์ assign UI
+  const alreadyAssigned = Boolean((issue as any).assigneeId);
 
   return (
-    <div className="p-4 bg-white shadow rounded-lg">
-      <div className="flex justify-between items-start">
-        <h3 className="font-bold text-lg">{issue.title}</h3>
-        <span suppressHydrationWarning className={`px-2 py-1 text-xs font-semibold rounded-full ${statusClass}`}>
-          {(issue.status ?? "UNKNOWN").replaceAll("_", " ")}
+    <div className="p-4 bg-white shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition flex flex-col gap-2 sm:gap-3 w-full">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+        <h3 className="font-bold text-lg text-gray-800 break-words">
+          {issue.title}
+        </h3>
+        <span
+          suppressHydrationWarning
+          className={`px-2 py-1 text-xs font-semibold rounded-full ${statusClass} min-w-[90px] text-center`}>
+          {" "}
+          {(issue.status ?? "UNKNOWN").replaceAll("_", " ")}{" "}
         </span>
       </div>
-      <p className="text-gray-600 mt-2">{issue.description}</p>
-      <div className="text-sm text-gray-500 mt-4">
-        <span>Priority: {issue.priority}</span> |{" "}
-        <span>Category: {issue.category}</span>
+      <p className="text-gray-600 mt-1 whitespace-pre-line break-words">
+        {issue.description}
+      </p>
+      <div className="flex flex-wrap gap-2 text-xs text-gray-500 mt-2">
+        <span className="bg-gray-100 px-2 py-1 rounded">
+          Priority: {issue.priority}
+        </span>
+        <span className="bg-gray-100 px-2 py-1 rounded">
+          Category: {issue.category}
+        </span>
       </div>
       {/* Admin: assign to support (simple input) */}
-      {user?.role === "ADMIN" && (
-        <div className="mt-3 flex gap-2 items-center">
+      {user?.role === "ADMIN" && !alreadyAssigned && (
+        <div className="mt-3 flex flex-col sm:flex-row gap-2 items-center w-full">
           {supportLoading ? (
             <div>Loading supports...</div>
           ) : supportError ? (
@@ -114,8 +143,7 @@ function IssueCard({ issue }: { issue: Issue }) {
               <select
                 value={assigneeId}
                 onChange={(e) => setAssigneeId(e.target.value)}
-                className="p-1 border rounded"
-              >
+                className="p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition w-full sm:w-auto">
                 <option value="">Select support</option>
                 {(supportUsers ?? []).map((u) => (
                   <option key={u.id} value={u.id}>
@@ -125,7 +153,6 @@ function IssueCard({ issue }: { issue: Issue }) {
               </select>
               <button
                 onClick={() => {
-                  console.log('Assign button clicked', { issueId: issue.id, assigneeId });
                   setIsAssigning(true);
                   assignMutation.mutate(
                     { id: issue.id, assigneeId },
@@ -133,20 +160,23 @@ function IssueCard({ issue }: { issue: Issue }) {
                       onSuccess: () => {
                         setIsAssigning(false);
                         setAssigneeId("");
-                        alert('Assigned successfully');
+                        alert("Assigned successfully");
                       },
                       onError: (err: any) => {
                         setIsAssigning(false);
-                        console.error('Assign failed', err);
-                        alert('Assign failed: ' + (err?.response?.data?.message || err?.message || 'Unknown error'));
+                        alert(
+                          "Assign failed: " +
+                            (err?.response?.data?.message ||
+                              err?.message ||
+                              "Unknown error")
+                        );
                       },
                     }
                   );
                 }}
-                className="px-2 py-1 bg-indigo-500 text-white rounded"
-                disabled={!assigneeId || isAssigning}
-              >
-                {isAssigning ? 'Assigning...' : 'Assign'}
+                className="px-3 py-1 bg-indigo-500 hover:bg-indigo-600 text-white rounded transition disabled:bg-gray-300 w-full sm:w-auto"
+                disabled={!assigneeId || isAssigning}>
+                {isAssigning ? "Assigning..." : "Assign"}
               </button>
             </>
           )}
@@ -155,12 +185,13 @@ function IssueCard({ issue }: { issue: Issue }) {
 
       {/* Support: update status */}
       {user?.role === "SUPPORT" && (
-        <div className="mt-3">
+        <div className="mt-3 w-full">
           <select
             defaultValue={issue.status}
-            onChange={(e) => statusMutation.mutate({ id: issue.id, status: e.target.value })}
-            className="p-1 border rounded"
-          >
+            onChange={(e) =>
+              statusMutation.mutate({ id: issue.id, status: e.target.value })
+            }
+            className="p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition w-full sm:w-auto">
             <option value="NEW">New</option>
             <option value="IN_PROGRESS">In Progress</option>
             <option value="RESOLVED">Resolved</option>

@@ -4,7 +4,6 @@ import { useCreateIssue } from "@/hooks/useIssues";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createIssueSchema } from "@/lib/validators/issue";
 
-
 type FormData = {
   title: string;
   description: string;
@@ -30,18 +29,18 @@ export default function CreateIssueForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="p-4 mb-6 bg-white shadow rounded-lg space-y-3">
+      className="p-4 mb-6 bg-white shadow rounded-lg space-y-3 max-w-3xl w-full mx-auto">
       <h2 className="text-xl font-semibold">Create New Issue</h2>
       <input
         {...register("title")}
         placeholder="Title"
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
       />
       {errors.title && <p className="text-red-500">{errors.title.message}</p>}
       <textarea
         {...register("description")}
         placeholder="Description"
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400 min-h-[100px]"
       />
       {errors.description && (
         <p className="text-red-500">{errors.description.message}</p>
@@ -49,22 +48,26 @@ export default function CreateIssueForm() {
       <input
         {...register("category")}
         placeholder="Category (e.g., Hardware)"
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
       />
-      {errors.category && <p className="text-red-500">{errors.category.message}</p>}
+      {errors.category && (
+        <p className="text-red-500">{errors.category.message}</p>
+      )}
       <select
         {...register("priority")}
         defaultValue="MEDIUM"
-        className="w-full p-2 border rounded">
+        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400">
         <option value="LOW">Low</option>
         <option value="MEDIUM">Medium</option>
         <option value="HIGH">High</option>
       </select>
-      {errors.priority && <p className="text-red-500">{errors.priority.message}</p>}
+      {errors.priority && (
+        <p className="text-red-500">{errors.priority.message}</p>
+      )}
       <button
         type="submit"
         disabled={isPending}
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400">
+        className="w-full px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:bg-gray-400">
         {isPending ? "Submitting..." : "Submit Issue"}
       </button>
     </form>

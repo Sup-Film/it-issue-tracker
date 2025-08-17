@@ -58,11 +58,11 @@ export default function LoginForm() {
   return (
     <>
       {/* Header */}
-      <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+  <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
 
       {/* Form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
+  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full">
+  <div>
           <label className="block text-sm font-medium text-gray-700">Email</label>
           {/* register('email') จะผูก input เข้ากับ react-hook-form */}
           <input {...register('email')} type="email" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
@@ -77,7 +77,7 @@ export default function LoginForm() {
         </div>
 
         {/* Submit button: disabled ขณะ mutation กำลังรัน */}
-        <button type="submit" disabled={isPending} className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400">
+  <button type="submit" disabled={isPending} className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400">
           {isPending ? 'Logging in...' : 'Login'}
         </button>
       </form>

@@ -12,7 +12,7 @@ services:
     depends_on:
       - backend
     environment:
-      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api
+      - NEXT_PUBLIC_API_BASE_URL=/api
       - INTERNAL_API_BASE_URL=http://backend:8080/api
     restart: unless-stopped
 
@@ -29,8 +29,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      - ../backend/.env
+    environment:
+      - DATABASE_URL=postgresql://postgres:1234@db:5432/it_issue_tracker?schema=public
+      - SERVER_PORT=8080
+      - WEBHOOK_URL=http://webhook-listener:4000/webhook
+      - WEBHOOK_SECRET=07d3beb2339f42cb7065c14de70f41dcfbf46f63f323a8372e6116ef6d8eeed0
     # Use entrypoint script to migrate, seed, then start
     command: ["./scripts/entrypoint.sh"]
     restart: unless-stopped
@@ -47,8 +50,9 @@ services:
       - "4000:4000"
     networks:
       - app-network
-    env_file:
-      - ../webhook-listener/.env
+    environment:
+      - WEBHOOK_SECRET=07d3beb2339f42cb7065c14de70f41dcfbf46f63f323a8372e6116ef6d8eeed0
+      - SERVER_PORT=4000
     restart: unless-stopped
 
   # Database Service (PostgreSQL)
@@ -57,8 +61,10 @@ services:
     container_name: it_issue_tracker_db
     ports:
       - "5433:5432"
-    env_file:
-      - ../.env # Root .env file for DB credentials
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=it_issue_tracker
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:

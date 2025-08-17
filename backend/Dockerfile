@@ -1,5 +1,5 @@
 # ---- build ----
-FROM node:20-slim AS build
+FROM node:20-alpine AS build
 WORKDIR /app
 RUN corepack enable
 
@@ -22,7 +22,7 @@ RUN pnpm build
 # then pruning devDependencies.
 
 # ---- runtime ----
-FROM node:20-slim AS runtime
+FROM node:20-alpine AS runtime
 WORKDIR /app/backend
 
 # Provide pnpm in runtime to support compose commands using pnpm
@@ -32,6 +32,7 @@ RUN npm install -g pnpm
 COPY --from=build /app/node_modules /app/node_modules
 # Copy backend package and built output
 COPY --from=build /app/backend/package.json ./package.json
+COPY --from=build /app/backend/node_modules ./node_modules
 COPY --from=build /app/backend/dist ./dist
 COPY --from=build /app/backend/prisma ./prisma
 COPY --from=build /app/backend/scripts ./scripts
